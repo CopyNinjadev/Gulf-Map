@@ -7,23 +7,48 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #007BFF;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column; /* Change to row for side-by-side */
+            height: 100vh; /* Full viewport height */
         }
         iframe {
-            width: 100%;
-            height: 100%;
             border: none;
+            flex: 1; /* Allow iframes to grow and fill the container */
+            min-height: 400px; /* Minimum height for iframes */
+        }
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row; /* Side-by-side layout on larger screens */
+            }
+            iframe {
+                min-height: 600px; /* Increase height for larger screens */
+            }
         }
     </style>
 </head>
 <body>
 
-    <h1>Participant Dashboard</h1>
+    <header>
+        <h1>Participant Dashboard</h1>
+    </header>
 
-    <!-- Zoho Analytics Embedded Dashboard -->
-    <iframe id="zohoFrame" src="https://analytics.zoho.com/open-view/2005021000011842183?ZOHO_CRITERIA=%22Bib%22=97"></iframe>
+    <div class="container">
+        <!-- Zoho Analytics Embedded Dashboard -->
+        <iframe id="zohoFrame" src="https://analytics.zoho.com/open-view/2005021000011842183?ZOHO_CRITERIA=%22Bib%22=97"></iframe>
 
-    <!-- Dynamic Map Embedded -->
-    <iframe id="mapFrame" src="https://copyninjadev.github.io/Participant-Dynamic-Map/?bib=97"></iframe>
+        <!-- Dynamic Map Embedded -->
+        <iframe id="mapFrame" src="https://copyninjadev.github.io/Participant-Dynamic-Map/?bib=97"></iframe>
+    </div>
 
     <script>
         // Function to get the BIB number from the URL
