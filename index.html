@@ -63,62 +63,62 @@
             border: 2px solid black;
         }
         #zohoEmbed {
-    margin-top: 20px;
-    display: none; /* Hide initially */
-    display: flex;
-    justify-content: center; /* Center the iframe horizontally */
-    padding: 30px;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease-in-out;
-}
+            margin-top: 20px;
+            display: none; /* Hide initially */
+            display: flex;
+            justify-content: center; /* Center the iframe horizontally */
+            padding: 30px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease-in-out;
+        }
 
-#zohoEmbed iframe {
-    width: 100%;
-    max-width: 1600px;
-    height: 1000px;
-    border: none;
-    border-radius: 8px;
-}
+        #zohoEmbed iframe {
+            width: 100%;
+            max-width: 1600px;
+            height: 1000px;
+            border: none;
+            border-radius: 8px;
+        }
 
-/* Adjustments for extra-large screens */
-@media (min-width: 1600px) {
-    #zohoEmbed iframe {
-        width: 100%;
-        max-width: 1800px;
-        height: 1000px;
-    }
-}
+        /* Adjustments for extra-large screens */
+        @media (min-width: 1600px) {
+            #zohoEmbed iframe {
+                width: 100%;
+                max-width: 1800px;
+                height: 1000px;
+            }
+        }
 
-/* Responsive adjustments for medium screens */
-@media (max-width: 1200px) {
-    #zohoEmbed iframe {
-        width: 100%;
-        max-width: 1100px;
-        height: 600px;
-    }
-}
+        /* Responsive adjustments for medium screens */
+        @media (max-width: 1200px) {
+            #zohoEmbed iframe {
+                width: 100%;
+                max-width: 1100px;
+                height: 600px;
+            }
+        }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 768px) {
-    #zohoEmbed iframe {
-        width: 100%;
-        height: 500px;
-    }
-}
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            #zohoEmbed iframe {
+                width: 100%;
+                height: 500px;
+            }
+        }
 
-@media (max-width: 480px) {
-    #zohoEmbed {
-        padding: 10px;
-    }
+        @media (max-width: 480px) {
+            #zohoEmbed {
+                padding: 10px;
+            }
 
-    #zohoEmbed iframe {
-        width: 100%;
-        height: 400px;
-    }
-}
+            #zohoEmbed iframe {
+                width: 100%;
+                height: 400px;
+            }
+        }
 
     </style>
 </head>
@@ -259,63 +259,35 @@
             return null;
         }
 
-        function animateCheckpoint(marker, checkpoints, pathCoordinates, checkpointIndex) {
-            if (checkpointIndex >= checkpoints.length - 1) return;
+        function animateCheckpoint(marker, checkpoints, pathCoordinates, index) {
+            if (index >= checkpoints.length) {
+                return;
+            }
 
-            let startCheckpoint = checkpoints[checkpointIndex].slice(0, 2);
-            let endCheckpoint = checkpoints[checkpointIndex + 1].slice(0, 2);
-            let speed = checkpoints[checkpointIndex + 1][2];
+            let [lat, lon, speed] = checkpoints[index];
+            marker.setLatLng([lat, lon]);
+            marker.getTooltip().setContent(getTooltipContent(speed));
 
-            let matchedStartIndex = matchLocation(startCheckpoint, pathCoordinates);
-            let matchedEndIndex = matchLocation(endCheckpoint, pathCoordinates);
-
-            if (matchedStartIndex !== null && matchedEndIndex !== null) {
-                let segment = pathCoordinates.slice(matchedStartIndex, matchedEndIndex + 1);
-
-                marker.setTooltipContent(getTooltipContent(speed));
-
-                animateMarker(marker, segment, speed, () => {
-                    animateCheckpoint(marker, checkpoints, pathCoordinates, checkpointIndex + 1);
-                });
+            // Calculate the next index in the pathCoordinates
+            let nextIndex = matchLocation([lat, lon], pathCoordinates);
+            if (nextIndex !== null) {
+                let nextLatLng = pathCoordinates[nextIndex + 1];
+                if (nextLatLng) {
+                    setTimeout(() => {
+                        animateCheckpoint(marker, checkpoints, pathCoordinates, index + 1);
+                    }, 1000); // Change the time to control the speed of animation
+                }
             }
         }
 
-        function animateMarker(marker, segment, speed, onFinish) {
-            let index = 0;
-            let totalSteps = segment.length * 10;
-            let speedFactor = 1000 / (speed * 2);
-
-            let stepInterval = setInterval(() => {
-                if (index < totalSteps) {
-                    let positionIndex = Math.floor(index / 10);
-                    let nextPositionIndex = Math.min(positionIndex + 1, segment.length - 1);
-                    let lat = segment[positionIndex][1] + (segment[nextPositionIndex][1] - segment[positionIndex][1]) * (index % 10) / 10;
-                    let lon = segment[positionIndex][0] + (segment[nextPositionIndex][0] - segment[positionIndex][0]) * (index % 10) / 10;
-
-                    marker.setLatLng([lat, lon]);
-                    index++;
-                } else {
-                    clearInterval(stepInterval);
-                    if (onFinish) onFinish();
-                }
-            }, speedFactor);
+        // Embed Zoho Analytics
+        function embedZohoAnalytics(bibs) {
+            const embedContainer = document.getElementById('zohoEmbed');
+            const url = `https://your-zoho-analytics-url?bibs=${bibs.join(',')}`; // Modify this with your actual Zoho Analytics URL
+            embedContainer.innerHTML = `<iframe src="${url}" frameborder="0"></iframe>`;
+            embedContainer.style.display = 'flex'; // Show the iframe
         }
-
-        // Embed Zoho Analytics dashboard based on BIB numbers
-function embedZohoAnalytics(bibs) {
-    const baseZohoUrl = "https://analytics.zoho.com/open-view/2005021000012167740/df3623a5b0f64b1966dce179a3b6613c";
-    const query = bibs.map(bib => `bib=${bib}`).join(" OR ");
-    const finalUrl = `${baseZohoUrl}?ZOHO_CRITERIA=${encodeURIComponent(query)}`;
-
-    // Log the final URL to the console for debugging
-    console.log("Final Zoho URL:", finalUrl);
-
-    // Embed the Zoho Analytics dashboard
-    const embedHtml = `<iframe src="${finalUrl}" width="800" height="600" frameborder="0" allowfullscreen></iframe>`;
-    document.getElementById('zohoEmbed').innerHTML = embedHtml;
-    document.getElementById('zohoEmbed').style.display = 'block'; // Show the embedded element
-}
-
     </script>
 </body>
 </html>
+
